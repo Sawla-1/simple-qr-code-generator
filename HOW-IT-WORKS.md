@@ -90,17 +90,16 @@ lands on `main`.
 ```yaml
 permissions:
   contents: read
-  pages: write
-  id-token: write
 ```
 GitHub Actions jobs get **no permissions by default** — you must grant exactly
-what's needed:
-- `contents: read` — needed to check out (download) your repo's code.
-- `pages: write` — needed to publish files to GitHub Pages.
-- `id-token: write` — needed for GitHub to issue a short-lived OIDC token that
-  proves "this specific workflow run is authorized to deploy." The official
-  `deploy-pages` action requires this — without it, the deploy step fails with
-  a permissions error. You can't remove this line and still deploy.
+what's needed. This top-level block is the **default for every job** in the
+file: `contents: read` — needed to check out (download) your repo's code.
+
+Following the principle of least privilege, this is kept to the minimum both
+jobs need. The `deploy` job needs more (publishing to Pages), but instead of
+adding those extra permissions here (which would hand them to `build` too,
+even though it never uses them), they're granted only inside the `deploy` job
+itself — see below.
 
 ```yaml
 jobs:
@@ -162,8 +161,16 @@ CI on purpose (deploy only happens if the build didn't fail).
       pages: write
       id-token: write
 ```
-Same reasoning as above — permissions are scoped per job, so this job repeats
-the two it specifically needs.
+A job-level `permissions` block **replaces** the top-level one for that job —
+it doesn't add to it. So `deploy` must list everything it needs itself:
+- `pages: write` — needed to publish files to GitHub Pages.
+- `id-token: write` — needed for GitHub to issue a short-lived OIDC token that
+  proves "this specific workflow run is authorized to deploy." The official
+  `deploy-pages` action requires this — without it, the deploy step fails with
+  a permissions error.
+
+(Note: `deploy` doesn't need `contents: read` — it never touches your code
+directly, it only publishes the artifact that `build` already created.)
 
 ```yaml
     environment:
