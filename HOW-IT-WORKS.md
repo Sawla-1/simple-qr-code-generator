@@ -111,13 +111,13 @@ provides for free.
 
 ```yaml
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 ```
 Downloads your repo's code onto that virtual machine. Without this, the VM is
 empty — there's no code to build.
 
 ```yaml
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
 ```
@@ -138,7 +138,7 @@ into a `dist` folder of plain HTML/CSS/JS. If there's a code error, this step
 fails and the workflow stops here (nothing broken gets deployed).
 
 ```yaml
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 ```
